@@ -1,16 +1,16 @@
-from sqlalchemy import create_engine, text
+from typing import Generator, Any
 
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import Session
 
 engine = create_engine(
-    'sqlite+pysqlite:///:memory',
+    'sqlite://',
     echo=False
 )
 
-with engine.connect() as conn:
-    result = conn.execute(text('select "hello world"'))
-    print(type(result))
-    print(type(result.all()))
-    for row in result:
-        print(row)
+def get_session() -> Generator[Session, Any, None]:
 
+    engine = create_engine('sqlite://', echo=False)
+    with Session(engine) as session:
+        yield session
 
