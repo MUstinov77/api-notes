@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from routers.notes_router import notes_router
+from notes.routers import auth_router, notes_router
 
 app = FastAPI()
 
-app.include_router(notes_router)
+app.include_router(notes_router.notes_router)
+app.include_router(auth_router.auth_router)
 
 
 @app.get("/")

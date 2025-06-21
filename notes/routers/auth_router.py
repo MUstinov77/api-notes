@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from notes.models.models import User
 from notes.core.db import get_session
 
+
 auth_router = APIRouter(
     prefix='/auth',
     tags=['auth']

@@ -1,11 +1,11 @@
-from sqlalchemy import String
+from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
     relationship
     )
 
-from notes.core.base import Base
+from ..core.base import Base
 
 
 class User(Base):
@@ -25,6 +25,10 @@ class Note(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     text: Mapped[str] = mapped_column(String(300))
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey('user_account.id'),
+        index=True
+    )
     user = relationship(
         'User',
         back_populates='note',

@@ -23,6 +23,3 @@ async def create_note():
 @notes_router.delete('/{note_id}')
 async def delete_note(note_id: int):
     return ...
-
-
-async def
