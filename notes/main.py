@@ -1,10 +1,17 @@
 from fastapi import FastAPI
-from notes.routers import auth_router, notes_router
+from notes.api.v1 import auth, users
+from notes.db import init_db
+
 
 app = FastAPI()
+app.include_router(auth.router)
+app.include_router(users.router)
 
-app.include_router(notes_router.notes_router)
-app.include_router(auth_router.auth_router)
+
+@app.on_event("startup")
+def startup():
+    init_db()
+
 
 
 @app.get("/")
