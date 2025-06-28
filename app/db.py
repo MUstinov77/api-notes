@@ -1,11 +1,11 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.params import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from contextlib import asynccontextmanager
-from notes.models import Base
-
+from app.models import Base
 
 engine = create_engine('sqlite:///notes.db')
 
@@ -36,6 +36,7 @@ async def lifespan(_app: FastAPI):
         init_db()
         yield
     finally:
-        destroy_db()
+        #destroy_db()
+        return
 
 
