@@ -33,3 +33,20 @@ def create_note(note: NoteQuery, session: Session = Depends(session_provider)):
     session.add(note)
 
     return note
+
+
+@router.get('/{note_id}')
+def get_note_by_id(note_id: int, session: Session = Depends(session_provider)):
+    query = select(Note).where(Note.id == note_id)
+    result = session.execute(query)
+    return result.scalars().one()
+
+
+@router.get('/{user_nickname}')
+def get_user_notes(user_nickname: str, session: Session = Depends(session_provider)):
+    user = session.query(User).where(User.nickname == user_nickname).first()
+    print(user)
+    query = select(Note).join(User, User.id == user.id)
+    result = session.execute(query)
+
+    return result.scalars().all()
