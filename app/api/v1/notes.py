@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from typing import Any
+
 from app.db import session_provider
 from app.models import Note, User
 
@@ -35,18 +37,20 @@ def create_note(note: NoteQuery, session: Session = Depends(session_provider)):
     return note
 
 
+@router.get('/{nickname}')
+def get_user_notes(nickname: str, session: Session = Depends(session_provider)):
+    user = select(User).where(User.nickname == nickname)
+    result = session.execute(user)
+    print(result)
+
+
+    return result.scalars().all()
+
 @router.get('/{note_id}')
 def get_note_by_id(note_id: int, session: Session = Depends(session_provider)):
     query = select(Note).where(Note.id == note_id)
     result = session.execute(query)
     return result.scalars().one()
 
-
-@router.get('/{user_nickname}')
-def get_user_notes(user_nickname: str, session: Session = Depends(session_provider)):
-    user = session.query(User).where(User.nickname == user_nickname).first()
-    print(user)
-    query = select(Note).join(User, User.id == user.id)
-    result = session.execute(query)
-
-    return result.scalars().all()
+def get_notes_by_field(field: Any, field_value: Any, session: Session = Depends(session_provider)):
+    query = select(Note).where(field == field_value).returnning(Note)
