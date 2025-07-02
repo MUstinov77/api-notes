@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from typing import Any
 
+
 from app.db import session_provider
 from app.models import Note, User
 
@@ -39,10 +40,10 @@ def create_note(note: NoteQuery, session: Session = Depends(session_provider)):
 
 @router.get('/{nickname}')
 def get_user_notes(nickname: str, session: Session = Depends(session_provider)):
-    user = select(User).where(User.nickname == nickname)
-    result = session.execute(user)
-    print(result)
-
+    query = select(User).where(User.nickname == nickname)
+    result = session.execute(query)
+    user_id = result.scalars().one().id
+    query = select(Note).where(Note.user_id == user_id)
 
     return result.scalars().all()
 
