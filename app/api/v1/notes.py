@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi.params import Depends
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from typing import Any
+from typing import Any, Type
 
 
 from app.db import session_provider
@@ -21,8 +21,7 @@ class NoteQuery(BaseModel):
 
 @router.get('/')
 def get_my_notes(session: Session = Depends(session_provider)):
-    # query = select(Note).join(User, User.id == Note.user_id)
-    query = select(Note)
+    query = select(Note).join(User, User.id == Note.user_id)
     result = session.execute(query)
 
     return result.scalars().all()
@@ -53,5 +52,3 @@ def get_note_by_id(note_id: int, session: Session = Depends(session_provider)):
     result = session.execute(query)
     return result.scalars().one()
 
-def get_notes_by_field(field: Any, field_value: Any, session: Session = Depends(session_provider)):
-    query = select(Note).where(field == field_value).returnning(Note)

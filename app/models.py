@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -16,7 +16,8 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     nickname: Mapped[str] = mapped_column(String(30), unique=True)
     email: Mapped[str] = mapped_column(String())
-    date_of_birth: Mapped[datetime] = mapped_column(String())
+    hashed_password: Mapped[bytes] = mapped_column()
+    date_of_birth: Mapped[date] = mapped_column()
     note = relationship('Note', back_populates='user', cascade='all, delete-orphan')
 
 
