@@ -1,8 +1,11 @@
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 
-from app.api.v1 import auth, notes, users
+from app.auth import router as auth
 from app.db import lifespan
+from app.notes import router as notes
+from app.users import router as users
+
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth.router)

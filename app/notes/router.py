@@ -1,22 +1,19 @@
+from typing import Any, Type
+
 from fastapi import APIRouter
 from fastapi.params import Depends
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from typing import Any, Type
-
-
 from app.db import session_provider
 from app.models import Note, User
+from app.notes.schemas import NoteQuery
 
 router = APIRouter(
     prefix='/notes',
     tags=['notes'],
 )
-
-class NoteQuery(BaseModel):
-    content: str
 
 
 @router.get('/')
