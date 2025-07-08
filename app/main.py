@@ -6,7 +6,6 @@ from app.db import lifespan
 from app.notes import router as notes
 from app.users import router as users
 
-
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth.router)
 app.include_router(users.router)
