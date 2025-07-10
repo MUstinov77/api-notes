@@ -13,7 +13,9 @@ router = APIRouter(
 
 @router.get('/')
 def get_all_users(session: Session = Depends(session_provider)):
-    return session.query(User).all()
+    query = select(User)
+    result = session.execute(query)
+    return result.scalars().all()
 
 
 @router.get('/{nickname}')

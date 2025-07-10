@@ -31,8 +31,7 @@ async def signup(
         session: Session = Depends(session_provider)
 ):
     user_data = user_data.model_dump()
-    hashed_password = get_password_hash(user_data.get('password'))
-    print(hashed_password)
+    hashed_password = get_password_hash(user_data.pop('password'))
     user = User(**user_data)
     user.hashed_password = hashed_password
     try:
@@ -66,7 +65,8 @@ def create_access_token(
         expire = datetime.now(timezone.utc) + timedelta(minutes=20)
 
     to_encode.update({'exp': expire})
-    return encoded_jwt := jwt.encode(to_encode, 'secret', 'HS256')
+    encoded_jwt = jwt.encode(to_encode, 'secret', 'HS256')
+    return encoded_jwt
 
 def check_user_is_authenticated(
         token: Annotated[str, Depends(oauth2_scheme)]
@@ -94,7 +94,7 @@ def check_user_is_authenticated(
 
 
 
-@router.get('/token')
+@router.post('/token')
 async def login(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ):
