@@ -9,9 +9,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from jwt.exceptions import InvalidTokenError
 
-from app.auth.schemas import Token, UserQuery, TokenData
+from app.auth.schemas import Token, UserQuery, TokenData, UserInDB
 from app.db import session_provider
 from app.models import User
+
+
+SECRET_KEY = '31302fb0fa15911d4b424e1ee164f6ff5a5c51a122b692f186c99f66c2088666'
+ALGORITHM = 'HS256'
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 BASE_PREFIX = '/auth'
 router = APIRouter(
@@ -65,10 +70,10 @@ def create_access_token(
         expire = datetime.now(timezone.utc) + timedelta(minutes=20)
 
     to_encode.update({'exp': expire})
-    encoded_jwt = jwt.encode(to_encode, 'secret', 'HS256')
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
     return encoded_jwt
 
-def check_user_is_authenticated(
+async def check_user_is_authenticated(
         token: Annotated[str, Depends(oauth2_scheme)]
 ):
     credentials_exception = HTTPException(
@@ -77,7 +82,7 @@ def check_user_is_authenticated(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         nickname = payload.get('sub')
         if not nickname:
             raise credentials_exception
@@ -90,15 +95,20 @@ def check_user_is_authenticated(
     return user
 
 
-
-
+async def get_current_active_user(
+        current_user: Annotated[User, Depends(check_user_is_authenticated)]
+):
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
 
 
 @router.post('/token')
 async def login(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        session: Session = Depends(session_provider)
 ):
-    user = get_user_from_db(form_data.username)
+    user = get_user_from_db(form_data.username, session)
 
     if not user:
         return {'message': 'invalid credentials'}
@@ -111,7 +121,3 @@ async def login(
         expires_delta=token_timedelta
     )
     return Token(access_token=access_token, token_type='bearer')
-
-
-
-

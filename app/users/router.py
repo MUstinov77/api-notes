@@ -5,13 +5,15 @@ from sqlalchemy.orm import Session
 from app.db import session_provider
 from app.models import User
 
+from .schemas import UserResponse
+
 router = APIRouter(
     prefix='/users',
     tags=['users'],
 )
 
 
-@router.get('/')
+@router.get('/', response_model=list[UserResponse])
 def get_all_users(session: Session = Depends(session_provider)):
     query = select(User)
     result = session.execute(query)

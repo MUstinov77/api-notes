@@ -1,12 +1,11 @@
 from datetime import date
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Boolean
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
     pass
-
 
 
 class User(Base):
@@ -19,8 +18,7 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column()
     date_of_birth: Mapped[date] = mapped_column()
     note = relationship('Note', back_populates='user', cascade='all, delete-orphan')
-
-
+    disabled: Mapped[bool] = mapped_column(Boolean(), default=True)
 
 
 class Note(Base):
@@ -31,5 +29,3 @@ class Note(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), default=1)
     user = relationship('User', back_populates='note')
     content: Mapped[str] = mapped_column(String(100))
-
-

@@ -7,7 +7,16 @@ class UserQuery(BaseModel):
     nickname: str
     email: str
     password: str
+    date_of_birth: date | None = None
+
+
+class UserInDB(BaseModel):
+    nickname: str
+    email: str
+    hashed_password: str
     date_of_birth: date
+    disabled: bool
+
 
 
 class Token(BaseModel):
