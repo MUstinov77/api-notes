@@ -1,4 +1,4 @@
-from typing import Any, Type, Annotated
+from typing import Annotated, Any, Type
 
 from fastapi import APIRouter
 from fastapi.params import Depends
@@ -6,10 +6,10 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth.router import check_user_is_authenticated
 from app.db import session_provider
 from app.models import Note, User
 from app.notes.schemas import NoteQuery
-from app.auth.router import check_user_is_authenticated
 
 router = APIRouter(
     prefix='/notes',

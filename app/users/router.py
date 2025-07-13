@@ -13,18 +13,23 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model=list[UserResponse])
+@router.get(
+    '/',
+    response_model=list[UserResponse]
+)
 def get_all_users(session: Session = Depends(session_provider)):
     query = select(User)
     result = session.execute(query)
     return result.scalars().all()
 
 
-@router.get('/{nickname}')
+@router.get(
+    '/{nickname}',
+    response_model=UserResponse
+)
 def get_user_by_nickname(nickname: str, session: Session = Depends(session_provider)):
     query = select(User).where(User.nickname == nickname)
-    print(query)
     result = session.execute(query)
 
-    return result.scalars().all()
+    return result.scalars().one()
 

@@ -3,16 +3,19 @@ from typing import Annotated
 
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import (
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestForm,
+    )
+from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from jwt.exceptions import InvalidTokenError
 
-from app.auth.schemas import Token, UserQuery, TokenData, UserInDB
+from app.auth.schemas import Token, TokenData, UserQuery
 from app.db import session_provider
 from app.models import User
-
 
 SECRET_KEY = '31302fb0fa15911d4b424e1ee164f6ff5a5c51a122b692f186c99f66c2088666'
 ALGORITHM = 'HS256'
@@ -26,7 +29,7 @@ router = APIRouter(
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl=BASE_PREFIX + '/token'
+    tokenUrl=BASE_PREFIX + '/token',
 )
 
 
@@ -53,11 +56,23 @@ def verify_password(plain_password, hashed_password):
 
 def get_user_from_db(
         username: str,
-        session: Session = Depends(session_provider)
+        session: Session
 ):
     query = select(User).where(User.nickname == username)
     result = session.execute(query)
     return result.scalars().one()
+
+def authenticate_user(
+        nickname: str,
+        password: str,
+        session: Session
+):
+    user = get_user_from_db(nickname, session)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
 
 def create_access_token(
         data: dict,
@@ -86,8 +101,9 @@ async def check_user_is_authenticated(
         nickname = payload.get('sub')
         if not nickname:
             raise credentials_exception
-        token_data = TokenData(nickname=nickname)
-    except InvalidTokenError:
+        token_scopes = payload.get('scopes', [])
+        token_data = TokenData(scopes=token_scopes,nickname=nickname)
+    except (InvalidTokenError, ValidationError):
         raise credentials_exception
     user = get_user_from_db(token_data.nickname)
     if not user:
@@ -108,16 +124,18 @@ async def login(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         session: Session = Depends(session_provider)
 ):
-    user = get_user_from_db(form_data.username, session)
+    user = authenticate_user(
+        form_data.username,
+        form_data.password,
+        session
+    )
 
     if not user:
         return {'message': 'invalid credentials'}
 
-    if not verify_password(form_data.password, user.hashed_password):
-        return {'message': 'wrong password'}
     token_timedelta = timedelta(minutes=20)
     access_token = create_access_token(
         data={'sub': user.nickname},
-        expires_delta=token_timedelta
+        expires_delta=token_timedelta,
     )
     return Token(access_token=access_token, token_type='bearer')

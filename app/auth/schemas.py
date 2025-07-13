@@ -26,3 +26,4 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     nickname: str
+    scopes: list[str] = []
