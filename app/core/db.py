@@ -5,7 +5,7 @@ from fastapi.params import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from app.models import Base
+from app.core.models import Base
 
 engine = create_engine('sqlite:///notes.db')
 

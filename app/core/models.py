@@ -26,6 +26,6 @@ class Note(Base):
     __tablename__ = 'notes'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), default=1)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     user = relationship('User', back_populates='note')
     content: Mapped[str] = mapped_column(String(100))

@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db import session_provider
-from app.models import User
+from app.core.db import session_provider
+from app.core.models import User
 
 from .schemas import UserResponse
 

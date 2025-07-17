@@ -1,14 +1,13 @@
-from typing import Annotated, Any, Type
+from typing import Annotated
 
 from fastapi import APIRouter
 from fastapi.params import Depends
-from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.auth.router import check_user_is_authenticated
-from app.db import session_provider
-from app.models import Note, User
+from app.core.db import session_provider
+from app.core.models import Note, User
+from app.core.utils import get_current_user
 from app.notes.schemas import NoteQuery
 
 router = APIRouter(
@@ -17,19 +16,26 @@ router = APIRouter(
 )
 
 
-@router.get('/')
+@router.get(
+    '/',
+    response_model=list[NoteQuery])
 async def get_my_notes(
-        user: Annotated[User, Depends(check_user_is_authenticated)],
-        session: Session = Depends(session_provider)):
-    query = select(Note).join(User, User.id == Note.user_id)
+        user: Annotated[User, Depends(get_current_user)],
+        session: Session = Depends(session_provider)
+):
+    query = select(Note).where(Note.user_id == user.id).join(User, User.id == Note.user_id)
     result = session.execute(query)
-
     return result.scalars().all()
 
 
 @router.post('/')
-async def create_note(note: NoteQuery, session: Session = Depends(session_provider)):
+async def create_note(
+        note: NoteQuery,
+        user: Annotated[User, Depends(get_current_user)],
+        session: Session = Depends(session_provider)
+):
     note = note.model_dump()
+    note['user_id'] = user.id
     note = Note(**note)
 
     session.add(note)
