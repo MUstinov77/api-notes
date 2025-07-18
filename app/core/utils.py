@@ -33,10 +33,10 @@ def verify_password(plain_password, hashed_password):
 
 
 def get_user_from_db(
-        username: str,
-        session: Session
+        nickname: str,
+        session: Session = Depends(session_provider)
 ):
-    query = select(User).where(User.nickname == username)
+    query = select(User).where(User.nickname == nickname)
     result = session.execute(query)
     return result.scalars().one()
 

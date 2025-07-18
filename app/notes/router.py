@@ -1,13 +1,13 @@
 from typing import Annotated
 
 from fastapi import APIRouter
-from fastapi.params import Depends
+from fastapi.params import Depends, Query
 from sqlalchemy import select, delete
 from sqlalchemy.orm import Session
 
 from app.core.db import session_provider
 from app.core.models import Note, User
-from app.core.utils import get_current_user, get_note_by_field
+from app.core.utils import get_current_user, get_user_from_db
 from app.notes.schemas import NoteQuery
 
 router = APIRouter(
@@ -29,12 +29,23 @@ async def get_my_notes(
     return result.scalars().all()
 
 
-@router.post('/')
+@router.post(
+    '/',
+    response_model=NoteQuery
+)
 async def create_note(
         note: NoteQuery,
         user: Annotated[User, Depends(get_current_user)],
+        nickname: Annotated[str | None, Query()] = None,
         session: Session = Depends(session_provider)
 ):
+    """
+    IF 'nickname' is given, it will create a note for that user
+    ELSE it will create a note for the current user
+    """
+    if nickname:
+
+        user = get_user_from_db(nickname, session)
     note = note.model_dump()
     note['user_id'] = user.id
     note = Note(**note)
