@@ -2,12 +2,12 @@ from typing import Annotated
 
 from fastapi import APIRouter
 from fastapi.params import Depends
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import Session
 
 from app.core.db import session_provider
 from app.core.models import Note, User
-from app.core.utils import get_current_user
+from app.core.utils import get_current_user, get_note_by_field
 from app.notes.schemas import NoteQuery
 
 router = APIRouter(
@@ -18,7 +18,8 @@ router = APIRouter(
 
 @router.get(
     '/',
-    response_model=list[NoteQuery])
+    response_model=list[NoteQuery]
+)
 async def get_my_notes(
         user: Annotated[User, Depends(get_current_user)],
         session: Session = Depends(session_provider)
@@ -43,18 +44,32 @@ async def create_note(
     return note
 
 
-@router.get('/{nickname}')
-async def get_user_notes(nickname: str, session: Session = Depends(session_provider)):
-    query = select(User).where(User.nickname == nickname)
+@router.get(
+    '/{note_id}',
+    response_model=NoteQuery
+)
+async def get_note_by_id(
+        note_id: int,
+        user: Annotated[User, Depends(get_current_user)],
+        session: Session = Depends(session_provider)
+):
+    query = (
+        select(Note).
+        where(Note.id == note_id).
+        join(User, user.id == Note.user_id)
+    )
     result = session.execute(query)
-    user_id = result.scalars().one().id
-    query = select(Note).where(Note.user_id == user_id)
+    return result.scalars().first()
 
-    return result.scalars().all()
-
-@router.get('/{note_id}')
-async def get_note_by_id(note_id: int, session: Session = Depends(session_provider)):
-    query = select(Note).where(Note.id == note_id)
-    result = session.execute(query)
-    return result.scalars().one()
-
+@router.delete(
+    '/{note_id}'
+)
+async def delete_note_by_id(
+        note_id: int,
+        user: Annotated[User, Depends(get_current_user)],
+        session: Session = Depends(session_provider)
+):
+    session.execute(
+        delete(Note).where(Note.id == note_id)
+    )
+    return {'message': 'note deleted'}

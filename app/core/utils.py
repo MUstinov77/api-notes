@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.schemas import Token, TokenData
 from app.core.db import session_provider
-from app.core.models import User
+from app.core.models import User, Note
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -99,3 +99,16 @@ async def get_current_active_user(
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+
+def get_note_by_field(
+        field: str,
+        field_value,
+        session: Session = Depends(session_provider)
+):
+    query = (
+        select(Note).where(field == field_value).
+        join(User, User.id == Note.user_id)
+    )
+    result = session.execute(query)
+    return result.scalars().first()
