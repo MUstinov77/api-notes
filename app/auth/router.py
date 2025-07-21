@@ -14,7 +14,6 @@ from app.core.utils import (
     get_password_hash
     )
 
-
 BASE_PREFIX = '/auth'
 router = APIRouter(
     prefix=BASE_PREFIX,

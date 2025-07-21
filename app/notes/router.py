@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter
 from fastapi.params import Depends, Query
-from sqlalchemy import select, delete
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.core.db import session_provider

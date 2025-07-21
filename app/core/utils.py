@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated, Generator
 
 import jwt
-from fastapi import Depends, HTTPException, status, APIRouter, FastAPI
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.schemas import Token, TokenData
 from app.core.db import session_provider
-from app.core.models import User, Note
+from app.core.models import Note, User
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 

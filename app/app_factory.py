@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 
-from app.core.exceptions import UniqueException
-from app.core.db import lifespan
 from app.auth import router as auth
+from app.core.db import lifespan
+from app.core.exceptions import UniqueException
 from app.notes import router as notes
 from app.users import router as users
 
