@@ -78,7 +78,8 @@ async def get_note_by_id(
 async def delete_note_by_id(
         note_id: int,
         user: Annotated[User, Depends(get_current_user)],
-        session: Session = Depends(session_provider)
+        session: Session = Depends(session_provider),
+
 ):
     session.execute(
         delete(Note).where(Note.id == note_id)
