@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Generator
+from typing import Annotated
 
 import jwt
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext

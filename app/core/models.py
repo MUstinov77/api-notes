@@ -20,6 +20,12 @@ class User(Base):
     note = relationship('Note', back_populates='user', cascade='all, delete-orphan')
     disabled: Mapped[bool] = mapped_column(Boolean(), default=True)
 
+    friends = relationship(
+        'Friend',
+        foreign_keys='Friend.friend_id',
+        back_populates='user'
+    )
+
 
 class Note(Base):
 
@@ -29,3 +35,18 @@ class Note(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     user = relationship('User', back_populates='note')
     content: Mapped[str] = mapped_column(String(100))
+
+
+class Friend(Base):
+
+    __tablename__ = 'friends'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    friend_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+
+    user = relationship(
+        'User',
+        foreign_keys=[user_id],
+        back_populates='friends'
+    )
