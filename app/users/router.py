@@ -1,11 +1,12 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.db import session_provider
-from app.core.models import User, Friend
+from app.core.models import Friend, User
 from app.core.utils import get_current_user, get_user_from_db
 
 from .schemas import UserResponse
@@ -42,6 +43,7 @@ async def get_user_by_nickname(
 
 @router.get(
     '/me/friends',
+    response_model=list[UserResponse]
 )
 async def get_my_friends(
         user: Annotated[User, Depends(get_current_user)],
@@ -67,6 +69,9 @@ async def add_friend(
             detail='user not found'
         )
     friend = Friend(
+        nickname=friend_to_add.nickname,
+        email=friend_to_add.email,
+        date_of_birth=friend_to_add.date_of_birth,
         user_id=user.id,
         friend_id=friend_to_add.id
     )
