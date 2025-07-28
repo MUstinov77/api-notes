@@ -19,7 +19,7 @@ class User(
 
     friends = relationship(
         'Friend',
-        foreign_keys='Friend.friend_id',
+        foreign_keys='Friend.user_id',
         back_populates='user'
     )
 

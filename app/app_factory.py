@@ -8,6 +8,7 @@ from app.core.db import lifespan
 from app.core.exceptions import UniqueException
 from app.notes import router as notes
 from app.users import router as users
+from app.me import router as me
 
 
 def create_app() -> FastAPI:
@@ -18,7 +19,8 @@ def create_app() -> FastAPI:
     routers = [
         auth.router,
         notes.router,
-        users.router
+        users.router,
+        me.router
     ]
 
     app.add_middleware(

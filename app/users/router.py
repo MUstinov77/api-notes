@@ -41,19 +41,6 @@ async def get_user_by_nickname(
     return result.scalars().one()
 
 
-@router.get(
-    '/me/friends',
-    response_model=list[UserResponse]
-)
-async def get_my_friends(
-        user: Annotated[User, Depends(get_current_user)],
-        session: Session = Depends(session_provider)
-):
-    query = select(Friend).where(Friend.user_id == user.id)
-    result = session.execute(query)
-    return result.scalars().all()
-
-
 @router.post(
     '/{nickname}/add-friend'
 )
