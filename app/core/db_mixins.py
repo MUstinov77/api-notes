@@ -6,10 +6,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 class UserMixin:
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, unique=True)
     nickname: Mapped[str] = mapped_column(
         String(30),
-        unique=True
+        unique=True,
     )
     email: Mapped[str] = mapped_column(String())
     date_of_birth: Mapped[date] = mapped_column(

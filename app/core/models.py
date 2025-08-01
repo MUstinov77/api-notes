@@ -1,6 +1,7 @@
 from datetime import date
 
-from sqlalchemy import Boolean, ForeignKey, String
+from sqlalchemy import Boolean, ForeignKey, String, UniqueConstraint
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ._base import Base
@@ -40,7 +41,7 @@ class Friend(
 ):
 
     __tablename__ = 'friends'
-
+    nickname: Mapped[str] = mapped_column(String(30))
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     friend_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
 

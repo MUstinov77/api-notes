@@ -1,4 +1,5 @@
 from typing import Annotated
+from sqlite3 import IntegrityError
 
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
@@ -55,12 +56,18 @@ async def add_friend(
             status_code=404,
             detail='user not found'
         )
-    friend = Friend(
-        nickname=friend_to_add.nickname,
-        email=friend_to_add.email,
-        date_of_birth=friend_to_add.date_of_birth,
-        user_id=user.id,
-        friend_id=friend_to_add.id
-    )
+    try:
+        friend = Friend(
+            nickname=friend_to_add.nickname,
+            email=friend_to_add.email,
+            date_of_birth=friend_to_add.date_of_birth,
+            user_id=user.id,
+            friend_id=friend_to_add.id
+        )
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=400,
+            detail='friend already exists'
+        )
     session.add(friend)
     return {'message': 'friend added'}

@@ -38,7 +38,7 @@ def get_user_from_db(
 ):
     query = select(User).where(User.nickname == nickname)
     result = session.execute(query)
-    return result.scalars().one()
+    return result.scalar_one_or_none()
 
 
 def authenticate_user(

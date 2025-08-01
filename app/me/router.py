@@ -9,7 +9,6 @@ from app.core.models import User, Friend
 from app.users.schemas import UserResponse
 from app.core.utils import get_current_user
 
-from .schemas import MeResponse
 from app.core.db import session_provider
 
 router = APIRouter(
